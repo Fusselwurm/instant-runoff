@@ -1,0 +1,38 @@
+[
+	{
+		"name": "Fusselwurm",
+		"hash": null,
+		"choices": [
+			"Bier",
+			"Wein"
+		]
+	},
+
+
+	{
+		"name": "Jason Miles",
+		"hash": null,
+		"choices": [
+			"Apfelschorle",
+			"Bier"
+		]
+	},
+
+	{
+		"name": "nomisum",
+		"hash": null,
+		"choices": [
+			"Vollmilch",
+			"Bier"
+		]
+	},
+
+	{
+		"name": "blah",
+		"hash": null,
+		"choices": [
+			"Wein",
+			"Bier"
+		]
+	}
+]
