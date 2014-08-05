@@ -2,6 +2,7 @@
 /*global console,setTimeout, require */
 var
     fs = require('fs'),
+    chalk = require('chalk'),
     ballots = JSON.parse(fs.readFileSync(process.argv[2], 'UTF-8'));
 
 (function () {
@@ -34,18 +35,31 @@ var
 			});
 			return votes;
 		},
-		getCandidateOfLeastChoices = function (votes) {
+		getCandidateOfLeastChoices = function (ballotObjects, votes) {
 			var
-				candidates = Object.getOwnPropertyNames(votes),
+				candidates = getCandidates(ballotObjects),
 				candidateWLeastVotes = '',
 				leastVotes = Infinity;
 			candidates.forEach(function (candidate) {
-				if (votes[candidate] < leastVotes) {
-					leastVotes = votes[candidate];
+				var voteCount = votes[candidate] || 0;
+				if (voteCount < leastVotes) {
+					leastVotes = voteCount;
 					candidateWLeastVotes = candidate;
 				}
 			});
 			return candidateWLeastVotes;
+		},
+		getCandidates = function (ballotObjects) {
+			var candidates = ballotObjects.reduce(function (prev, cur) {
+				cur.choices.forEach(function (choice) {
+					if (prev.indexOf(choice) === -1) {
+						prev.push(choice);
+					}
+				});
+				return prev;
+			}, []);
+
+			return candidates
 		},
 		getCandidateCount = function (ballotObjects) {
 			var candidates = ballotObjects.reduce(function (prev, cur) {
@@ -56,7 +70,7 @@ var
 				});
 				return prev;
 			}, []);
-			return candidates.length;
+			return getCandidates(ballotObjects).length;
 		},
 		purgeCandidate = function (ballotObjects, candidate) {
 			ballotObjects.forEach(function (ballotObject) {
@@ -80,13 +94,14 @@ var
 		while (getCandidateCount(ballotObjects) > 1) {
 			votes = getFirstChoiceVotecount(ballotObjects);
 			//console.log(votes);
-			puniestCandidate = getCandidateOfLeastChoices(votes);
-			console.log('purging ' + puniestCandidate + ', having only ' + votes[puniestCandidate] + ' first votes');
+			puniestCandidate = getCandidateOfLeastChoices(ballotObjects, votes);
+			console.log(chalk.gray(JSON.stringify(votes)));
+			console.log(chalk.blue('purging ' + puniestCandidate + ', having ' + (votes[puniestCandidate] ? 'only ' + votes[puniestCandidate] : 'no') + ' first votes'));
 			purgeCandidate(ballotObjects, puniestCandidate);
 		}
 		votes = getFirstChoiceVotecount(ballotObjects);
 		var winner = Object.getOwnPropertyNames(votes)[0];
-		console.log('the winner shall be: ' +  winner + ' with now ' + votes[winner] + ' votes');
+		console.log(chalk.green('the winner shall be: ' +  winner + ' with now ' + votes[winner] + ' votes'));
 	}());
 
 }());
